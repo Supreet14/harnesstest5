@@ -39,6 +39,6 @@ def convert_json_to_yaml(json_file_path, yaml_file_path):
 
 # Example usage
 if __name__ == "__main__":
-    json_file_path = "input.json"  # Replace with your JSON file path
-    yaml_file_path = "output.yaml" # Replace with your desired YAML file path
+    json_file_path = "/harnesstest5/spinnaker.json"  # Replace with your JSON file path
+    yaml_file_path = "/harnesstest5/harness.yaml" # Replace with your desired YAML file path
     convert_json_to_yaml(json_file_path, yaml_file_path)
