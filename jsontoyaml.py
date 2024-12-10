@@ -1,3 +1,6 @@
+import json
+import yaml
+
 def transform_spinnaker_to_harness(data):
     """
     Transform Spinnaker JSON structure to Harness YAML structure.
@@ -62,3 +65,33 @@ def transform_spinnaker_to_harness(data):
             transformed_data["pipeline"]["triggers"].append(harness_trigger)
 
     return transformed_data
+
+def convert_json_to_yaml(json_file_path, yaml_file_path):
+    """
+    Converts a JSON file to a YAML file with specific transformations.
+
+    :param json_file_path: Path to the input JSON file.
+    :param yaml_file_path: Path to the output YAML file.
+    """
+    try:
+        # Read the JSON file
+        with open(json_file_path, 'r') as json_file:
+            data = json.load(json_file)
+
+        # Transform the data
+        transformed_data = transform_spinnaker_to_harness(data)
+
+        # Write to the YAML file
+        with open(yaml_file_path, 'w') as yaml_file:
+            yaml.dump(transformed_data, yaml_file, default_flow_style=False)
+
+        print("Successfully converted {} to {}".format(json_file_path, yaml_file_path))
+
+    except Exception as e:
+        print("Error: {}".format(e))
+
+# Example usage
+if __name__ == "__main__":
+    json_file_path = "spinnaker.json"  # Replace with your JSON file path
+    yaml_file_path = "harness.yaml" # Replace with your desired YAML file path
+    convert_json_to_yaml(json_file_path, yaml_file_path)
