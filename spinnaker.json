@@ -1,0 +1,45 @@
+{
+    "name": "Sample Pipeline",
+    "application": "testApp",
+    "stages": [
+        {
+            "name": "Deploy to Dev",
+            "type": "deploy",
+            "clusters": [
+                {
+                    "account": "dev-account",
+                    "application": "testApp",
+                    "stack": "dev",
+                    "details": "example-service",
+                    "strategy": "redblack",
+                    "capacity": {
+                        "desired": 2,
+                        "max": 3,
+                        "min": 1
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Approval Stage",
+            "type": "manualJudgment",
+            "judgmentInputs": ["Approve", "Reject"]
+        }
+    ],
+    "triggers": [
+        {
+            "type": "git",
+            "source": "github",
+            "project": "example-project",
+            "repository": "example-repo",
+            "branch": "main"
+        }
+    ],
+    "notifications": [
+        {
+            "type": "slack",
+            "address": "#devops",
+            "when": ["pipeline.starting", "pipeline.failed"]
+        }
+    ]
+}
