@@ -32,13 +32,13 @@ def convert_json_to_yaml(json_file_path, yaml_file_path):
         with open(yaml_file_path, 'w') as yaml_file:
             yaml.dump(transformed_data, yaml_file, default_flow_style=False)
 
-        print(f"Successfully converted {json_file_path} to {yaml_file_path}")
+        print("Successfully converted {} to {}".format(json_file_path, yaml_file_path))
 
     except Exception as e:
-        print(f"Error: {e}")
+        print("Error: {}".format(e))
 
 # Example usage
 if __name__ == "__main__":
-    json_file_path = "/harnesstest5/spinnaker.json"  # Replace with your JSON file path
-    yaml_file_path = "/harnesstest5/harness.yaml" # Replace with your desired YAML file path
+    json_file_path = "input.json"  # Replace with your JSON file path
+    yaml_file_path = "output.yaml" # Replace with your desired YAML file path
     convert_json_to_yaml(json_file_path, yaml_file_path)
