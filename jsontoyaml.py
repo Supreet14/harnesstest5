@@ -8,12 +8,13 @@ def transform_spinnaker_to_harness(data):
     """
     transformed_data = {}
 
-    # Map pipeline name
+    # Map pipeline metadata
+    pipeline_name = data.get("name", "Default Pipeline")
     transformed_data["pipeline"] = {
-        "name": data.get("name", "Default Pipeline"),
-        "identifier": data.get("name", "Default Pipeline").replace(" ", "_").lower(),
-        "projectIdentifier": "default_project",  # Update with actual project ID
-        "orgIdentifier": "default_org",  # Update with actual org ID
+        "name": pipeline_name,
+        "identifier": pipeline_name.replace(" ", "_").lower(),
+        "projectIdentifier": data.get("projectId", "default_project"),
+        "orgIdentifier": data.get("orgId", "default_org"),
         "stages": []
     }
 
@@ -21,33 +22,33 @@ def transform_spinnaker_to_harness(data):
     for stage in data.get("stages", []):
         harness_stage = {
             "name": stage.get("name", "Unnamed Stage"),
-            "type": stage.get("type", "Custom"),  # Map to Harness stage type
+            "type": stage.get("type", "Custom"),
             "spec": {}
         }
 
         if stage.get("type") == "deploy":
             harness_stage["type"] = "Deployment"
-            harness_stage["spec"]["deploymentType"] = "Kubernetes"  # Example
+            harness_stage["spec"]["deploymentType"] = stage.get("deploymentType", "Kubernetes")
+            harness_stage["spec"]["infrastructure"] = []
 
-            # Example: Transform clusters to infrastructure
-            if "clusters" in stage:
-                harness_stage["spec"]["infrastructure"] = []
-                for cluster in stage["clusters"]:
-                    harness_stage["spec"]["infrastructure"].append({
-                        "account": cluster.get("account"),
-                        "application": cluster.get("application"),
-                        "stack": cluster.get("stack"),
-                        "details": cluster.get("details"),
-                        "capacity": cluster.get("capacity")
-                    })
+            for cluster in stage.get("clusters", []):
+                infrastructure = {
+                    "account": cluster.get("account"),
+                    "application": cluster.get("application"),
+                    "stack": cluster.get("stack"),
+                    "details": cluster.get("details"),
+                    "capacity": cluster.get("capacity", {})
+                }
+                harness_stage["spec"]["infrastructure"].append(infrastructure)
 
         elif stage.get("type") == "manualJudgment":
             harness_stage["type"] = "Approval"
-            harness_stage["spec"]["approvalMessage"] = "Please approve this stage"
+            harness_stage["spec"]["approvalMessage"] = stage.get("approvalMessage", "Please approve this stage")
             harness_stage["spec"]["approvers"] = {
-                "userGroups": ["default_user_group"]  # Replace with actual user group
+                "userGroups": stage.get("approvers", ["default_user_group"])
             }
 
+        # Add transformed stage to the pipeline
         transformed_data["pipeline"]["stages"].append(harness_stage)
 
     # Transform triggers
@@ -55,11 +56,12 @@ def transform_spinnaker_to_harness(data):
         transformed_data["pipeline"]["triggers"] = []
         for trigger in data["triggers"]:
             harness_trigger = {
-                "type": "Webhook",  # Example: Map to Harness trigger type
+                "name": trigger.get("name", "default_trigger"),
+                "type": trigger.get("type", "Webhook"),
                 "spec": {
-                    "source": trigger.get("source"),
-                    "repo": trigger.get("repository"),
-                    "branch": trigger.get("branch")
+                    "source": trigger.get("source", "git"),
+                    "repo": trigger.get("repository", "default_repo"),
+                    "branch": trigger.get("branch", "main")
                 }
             }
             transformed_data["pipeline"]["triggers"].append(harness_trigger)
@@ -85,13 +87,35 @@ def convert_json_to_yaml(json_file_path, yaml_file_path):
         with open(yaml_file_path, 'w') as yaml_file:
             yaml.dump(transformed_data, yaml_file, default_flow_style=False)
 
-        print("Successfully converted {} to {}".format(json_file_path, yaml_file_path))
+        print(f"Successfully converted {json_file_path} to {yaml_file_path}")
 
     except Exception as e:
-        print("Error: {}".format(e))
+        print(f"Error: {e}")
 
-# Example usage
+def read_yaml_file(yaml_file_path):
+    """
+    Reads a YAML file and returns its content.
+
+    :param yaml_file_path: Path to the YAML file.
+    :return: Parsed YAML content.
+    """
+    try:
+        with open(yaml_file_path, 'r') as yaml_file:
+            data = yaml.safe_load(yaml_file)
+            return data
+    except Exception as e:
+        print(f"Error reading YAML file: {e}")
+        return None
+
 if __name__ == "__main__":
     json_file_path = "spinnaker.json"  # Replace with your JSON file path
-    yaml_file_path = "harness.yaml" # Replace with your desired YAML file path
+    yaml_file_path = "harness.yaml"   # Replace with your desired YAML file path
+
+    # Convert JSON to YAML
     convert_json_to_yaml(json_file_path, yaml_file_path)
+
+    # Read and print the YAML content
+    yaml_data = read_yaml_file(yaml_file_path)
+    if yaml_data:
+        print("YAML Content:")
+        print(yaml.dump(yaml_data, default_flow_style=False))
