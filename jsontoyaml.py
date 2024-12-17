@@ -83,9 +83,9 @@ def convert_json_to_yaml(json_file_path, yaml_file_path):
         # Transform the data
         transformed_data = transform_spinnaker_to_harness(data)
 
-        # Write to the YAML file
+        # Write to the YAML file using safe_dump
         with open(yaml_file_path, 'w') as yaml_file:
-            yaml.dump(transformed_data, yaml_file, default_flow_style=False)
+            yaml.safe_dump(transformed_data, yaml_file, default_flow_style=False)
 
         print("Successfully converted {} to {}".format(json_file_path, yaml_file_path))
 
@@ -101,7 +101,7 @@ def read_yaml_file(yaml_file_path):
     """
     try:
         with open(yaml_file_path, 'r') as yaml_file:
-            data = yaml.safe_load(yaml_file)
+            data = yaml.safe_load(yaml_file)  # Ensure safe_load is used
             return data
     except Exception as e:
         print("Error reading YAML file: {}".format(e))
@@ -118,4 +118,4 @@ if __name__ == "__main__":
     yaml_data = read_yaml_file(yaml_file_path)
     if yaml_data:
         print("YAML Content:")
-        print(yaml.dump(yaml_data, default_flow_style=False))
+        print(yaml.safe_dump(yaml_data, default_flow_style=False))
