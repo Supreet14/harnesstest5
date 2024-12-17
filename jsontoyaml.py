@@ -87,10 +87,10 @@ def convert_json_to_yaml(json_file_path, yaml_file_path):
         with open(yaml_file_path, 'w') as yaml_file:
             yaml.dump(transformed_data, yaml_file, default_flow_style=False)
 
-        print(f"Successfully converted {json_file_path} to {yaml_file_path}")
+        print("Successfully converted {} to {}".format(json_file_path, yaml_file_path))
 
     except Exception as e:
-        print(f"Error: {e}")
+        print("Error: {}".format(e))
 
 def read_yaml_file(yaml_file_path):
     """
@@ -104,7 +104,7 @@ def read_yaml_file(yaml_file_path):
             data = yaml.safe_load(yaml_file)
             return data
     except Exception as e:
-        print(f"Error reading YAML file: {e}")
+        print("Error reading YAML file: {}".format(e))
         return None
 
 if __name__ == "__main__":
